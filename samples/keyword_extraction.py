@@ -41,7 +41,15 @@ def tokenize(text):
 def posTagger(text, pos_model_path="pos_tagger.model", posTaggerModel=None):
     tokens = tokenize(text)
     tagger = POSTagger(pos_model_path) if posTaggerModel is None else posTaggerModel
-    return tagger.tag_sents(tokens)
+    token_tag_list=tagger.tag_sents(tokens)
+    token_tag_list2=[]
+    for item in token_tag_list:
+        #print(item)
+        for item2 in item:
+            print(item2[0].replace('\u200c',' '),item2[1])
+        #token_tag_list2.append(item.replace('\u200c',' '))
+    #print(token_tag_list)
+    return token_tag_list
 
 
 def extractGrammer(tagged_text, grammer):
@@ -65,7 +73,7 @@ def extractCandidates(tagged_text, grammers=grammers):
     return np.array(list(all_candidates))
 
 
-def text2vec(candidates, sent2vec_model_path="sent2vec.model", sent2vecModel=None):
+def text2vec(candidates, sent2vec_model_path="sent2vec-naab.model", sent2vecModel=None):
     sent2vec_model = (
         SentEmbedding(sent2vec_model_path) if sent2vecModel is None else sent2vecModel
     )
@@ -161,9 +169,18 @@ def embedRank(text, keyword_num, sent2vecModel=None, posTaggerModel=None):
     candidates = extractCandidates(token_tag)
     return extractKeyword(candidates, keyword_num, sent2vecModel=sent2vecModel)
 
-
+import time
 if __name__ == "__main__":
-    persikaReader = PersicaReader("persika.csv")
-    text = next(persikaReader.texts())
-    keyword_num = 10
+    t0=time.time()
+    #text = 'نخبه شو چیست'
+    text = 'ثبت نام کلاس های نخبه شو'
+    #text='نخبه شو کجا واقع شده است'
+    print('text: ',text)
+    keyword_num = 1
     keywords = embedRank(text, keyword_num)
+    keywords2=keywords[0].replace('\u200c',' ')
+    t1=time.time()
+    
+    print('keyword: ',keywords2)
+    print('time:',t1-t0)
+    
